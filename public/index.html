@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>餐评生成器</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-labelledby="page-title">
+        <div class="toolbar">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <span></span>
+            </span>
+            <div>
+              <h1 id="page-title">餐评生成器</h1>
+              <p>150 字中文餐厅点评</p>
+            </div>
+          </div>
+          <div class="status-pill" id="status-pill">未连接</div>
+        </div>
+
+        <form class="generator" id="review-form">
+          <label>
+            <span>餐厅名</span>
+            <input
+              name="restaurantName"
+              autocomplete="off"
+              placeholder="例如：山野小馆"
+            />
+          </label>
+
+          <label>
+            <span>城市/商圈</span>
+            <input name="location" autocomplete="off" placeholder="例如：上海 静安寺" />
+          </label>
+
+          <label>
+            <span>菜系/类型</span>
+            <input name="cuisine" autocomplete="off" placeholder="例如：川菜、日料、咖啡" />
+          </label>
+
+          <label>
+            <span>人均</span>
+            <input name="price" autocomplete="off" placeholder="例如：120 元" />
+          </label>
+
+          <label class="wide">
+            <span>推荐菜/亮点</span>
+            <textarea
+              name="highlights"
+              rows="4"
+              placeholder="例如：招牌烤鱼、服务热情、适合朋友聚餐"
+            ></textarea>
+          </label>
+
+          <div class="control-group">
+            <span>场景</span>
+            <div class="segments" data-name="scene">
+              <button type="button" data-value="朋友聚餐" class="active">朋友聚餐</button>
+              <button type="button" data-value="约会">约会</button>
+              <button type="button" data-value="家庭聚会">家庭</button>
+              <button type="button" data-value="独自用餐">独食</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span>口吻</span>
+            <div class="segments" data-name="tone">
+              <button type="button" data-value="真诚自然" class="active">自然</button>
+              <button type="button" data-value="精致小红书风">精致</button>
+              <button type="button" data-value="大众点评真实口吻">点评</button>
+              <button type="button" data-value="克制高级">克制</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span>态度</span>
+            <div class="segments" data-name="sentiment">
+              <button type="button" data-value="正向好评" class="active">好评</button>
+              <button type="button" data-value="中性客观">中性</button>
+              <button type="button" data-value="轻微吐槽但总体可接受">微吐槽</button>
+            </div>
+          </div>
+
+          <button class="generate-button wide" type="submit" id="generate-button">
+            <span class="button-icon" aria-hidden="true"></span>
+            <span>生成评价</span>
+          </button>
+        </form>
+      </section>
+
+      <aside class="result-panel" aria-labelledby="result-title">
+        <div class="result-head">
+          <h2 id="result-title">生成结果</h2>
+          <div class="char-count"><span id="char-count">0</span> 字</div>
+        </div>
+
+        <div class="review-output" id="review-output">
+          <p>生成后的评价会出现在这里。</p>
+        </div>
+
+        <div class="result-actions">
+          <button type="button" id="copy-button" disabled>复制</button>
+          <button type="button" id="clear-button">清空</button>
+        </div>
+
+        <div class="history" id="history" aria-live="polite"></div>
+      </aside>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
