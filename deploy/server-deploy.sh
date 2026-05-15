@@ -33,6 +33,20 @@ else
 fi
 
 "${COMPOSE[@]}" ps
-curl -fsS http://127.0.0.1:8010/api/health
+
+for attempt in {1..30}; do
+  if curl -fsS http://127.0.0.1:8010/api/health; then
+    echo
+    break
+  fi
+
+  if [ "$attempt" -eq 30 ]; then
+    echo "Health check failed after 30 attempts." >&2
+    exit 1
+  fi
+
+  sleep 1
+done
+
 echo
 echo "Deployment finished. Visit http://47.115.133.42"
