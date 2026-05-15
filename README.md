@@ -42,53 +42,42 @@ http://localhost:3000
 
 ## 阿里云服务器部署
 
-服务器需要 Python 3.10 或更新版本。
+推荐用 Docker 运行应用容器，再用服务器上的 Nginx 转发 80 端口到容器。
 
 ```bash
-scp -r /path/to/this-folder root@你的服务器IP:/opt/restaurant-review-generator
 ssh root@你的服务器IP
+git clone git@github.com:LLLBO123/vibecoding.git /opt/restaurant-review-generator
 cd /opt/restaurant-review-generator
 cp .env.example .env
 vim .env
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 3000
+docker compose up -d --build
 ```
 
-生产环境推荐用 `systemd` 守护进程：
+Docker 会把应用绑定到服务器本机的 `127.0.0.1:8000`，不会直接暴露给公网。
 
-```ini
-[Unit]
-Description=Restaurant Review Generator
-After=network.target
+### Nginx 反向代理
 
-[Service]
-WorkingDirectory=/opt/restaurant-review-generator
-EnvironmentFile=/opt/restaurant-review-generator/.env
-ExecStart=/opt/restaurant-review-generator/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 3000
-Restart=always
-RestartSec=3
+把仓库里的配置复制到 Nginx：
 
-[Install]
-WantedBy=multi-user.target
+```bash
+cp /opt/restaurant-review-generator/deploy/nginx/vibecoding.conf /etc/nginx/conf.d/vibecoding.conf
+nginx -t
+systemctl reload nginx
 ```
 
-如果使用 Nginx，可反向代理到本服务：
+如果已经有域名，把 `server_name _;` 改成你的域名：
 
 ```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
+server_name your-domain.com;
+```
 
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
+### 常用 Docker 命令
+
+```bash
+docker compose ps
+docker compose logs -f
+docker compose restart
+docker compose down
 ```
 
 ## 配置说明
