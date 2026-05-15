@@ -137,7 +137,7 @@ async def generate_review(review_input: ReviewInput) -> str:
             f"口吻：{review_input.tone}",
             f"态度：{review_input.sentiment}",
             "",
-            "请生成一段适合发布在大众点评、美团、小红书等平台的中文餐厅点评。",
+            "请生成一段适合发布在大众点评、美团、小红书等平台的中文餐厅点评，约 140 到 170 个中文字符。",
         ]
     )
 
@@ -147,50 +147,22 @@ async def generate_review(review_input: ReviewInput) -> str:
             "content": (
                 "你是中文餐厅点评文案助手。只输出评价正文，不要标题、序号、解释、引号或 Markdown。"
                 "评价要自然、具体、像真实用户写的，不要夸张虚假，不要承诺不存在的服务。"
-                "严格控制在 145 到 155 个中文字符左右。"
+                "控制在一小段内，优先保证内容完整自然，不要为了凑字数反复铺陈。"
             ),
         },
         {"role": "user", "content": prompt},
     ]
 
-    review = tidy_review(await call_dashscope(messages))
-
-    for _ in range(4):
-        length = len(review)
-        if 145 <= length <= 155:
-            return review
-
-        if length < 135:
-            guidance = f"还差约 {150 - length} 个字符，请补充菜品口感、服务细节或环境感受。"
-        else:
-            guidance = f"多了约 {length - 150} 个字符，请删掉重复修饰，保留核心体验。"
-
-        review = tidy_review(
-            await call_dashscope(
-                [
-                    *messages,
-                    {"role": "assistant", "content": review},
-                    {
-                        "role": "user",
-                        "content": (
-                            f"程序实际统计这段是 {length} 个字符，目标是 145 到 155 个字符，"
-                            f"字符数包含中文、数字和标点。{guidance}请改写到 150 字附近，只输出评价正文。"
-                        ),
-                    },
-                ]
-            )
-        )
-
-    return review
+    return fit_review_length(tidy_review(await call_dashscope(messages)))
 
 
 async def call_dashscope(messages: list[dict[str, str]]) -> str:
     payload = {
         "model": DASHSCOPE_MODEL,
         "messages": messages,
-        "temperature": 0.85,
-        "top_p": 0.9,
-        "max_tokens": 220,
+        "temperature": 0.75,
+        "top_p": 0.85,
+        "max_tokens": 180,
     }
 
     return await asyncio.to_thread(send_dashscope_request, payload)
@@ -264,6 +236,18 @@ def tidy_review(value: str) -> str:
     review = re.sub(r"^[\s\"'“”‘’`]+|[\s\"'“”‘’`]+$", "", str(value))
     review = re.sub(r"\n+", " ", review)
     return re.sub(r"\s+", " ", review).strip()
+
+
+def fit_review_length(review: str) -> str:
+    if len(review) <= 170:
+        return review
+
+    punctuation = "。！？!?；;"
+    for index in range(169, 129, -1):
+        if review[index] in punctuation:
+            return review[: index + 1].strip()
+
+    return review[:170].rstrip("，,、；;：:")
 
 
 def cache_headers(path: Path) -> dict[str, str]:
