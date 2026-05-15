@@ -33,6 +33,6 @@ else
 fi
 
 "${COMPOSE[@]}" ps
-curl -fsS http://127.0.0.1:8000/api/health
+curl -fsS http://127.0.0.1:8010/api/health
 echo
 echo "Deployment finished. Visit http://47.115.133.42"
