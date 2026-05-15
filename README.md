@@ -72,7 +72,7 @@ nginx -t
 systemctl reload nginx
 ```
 
-如果已经有域名，把 `server_name 47.115.133.42;` 改成你的域名：
+如果已经有域名，把 `server_name app.test.lyplab.xyz 47.115.133.42;` 改成你的域名：
 
 ```nginx
 server_name your-domain.com;
