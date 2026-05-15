@@ -55,6 +55,13 @@ docker compose up -d --build
 
 Docker 会把应用绑定到服务器本机的 `127.0.0.1:8000`，不会直接暴露给公网。
 
+也可以使用仓库里的脚本一次性启动 Docker 并安装 Nginx 配置：
+
+```bash
+cd /opt/restaurant-review-generator
+sudo bash deploy/server-deploy.sh
+```
+
 ### Nginx 反向代理
 
 把仓库里的配置复制到 Nginx：
